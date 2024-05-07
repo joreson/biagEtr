@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1095521958888",
+    "project_id": "teraservus",
+    "storage_bucket": "teraservus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1095521958888:android:ad2302cf72a869132ac25d",
+        "android_client_info": {
+          "package_name": "com.example.mad2_etr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRBZxOma64xmWoy6Qm1bTVJNclv56fwmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
