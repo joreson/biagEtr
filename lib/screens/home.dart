@@ -26,8 +26,11 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(174, 184, 174, 1),
       drawer: profile(),
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(37, 103, 36, 1),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentPageIndex,
         onTap: (int index) {
@@ -38,15 +41,20 @@ class _HomeState extends State<Home> {
         },
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.landscape),
+            icon: Icon(
+              Icons.landscape,
+              color: Color.fromRGBO(37, 103, 36, 1),
+            ),
             label: currentPageIndex == 0 ? _bottomNavLabels[0] : '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.cloud_circle),
+            icon:
+                Icon(Icons.cloud_circle, color: Color.fromRGBO(37, 103, 36, 1)),
             label: currentPageIndex == 1 ? _bottomNavLabels[1] : '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_sharp),
+            icon: Icon(Icons.inventory_2_sharp,
+                color: Color.fromRGBO(37, 103, 36, 1)),
             label: currentPageIndex == 2 ? _bottomNavLabels[2] : '',
           ),
         ],

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Weather {
   final String location;
   final double temperature;

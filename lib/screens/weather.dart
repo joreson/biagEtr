@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mad2_etr/model/weatherModel.dart';
 import 'package:mad2_etr/model/weatherService.dart';
 
@@ -10,23 +12,40 @@ class WeatherDisplay extends StatefulWidget {
 }
 
 class WeatherDisplayState extends State<WeatherDisplay> {
-  final _weatherServices = WeatherServices('de1fb5334de6d614fdf68d14aa4e7d81');
-  Weather? _weather;
-  var weatherController = TextEditingController();
-  void onPressed() {
-    weatherStatus(weatherController.text);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    weatherStatus();
   }
 
-  weatherStatus(String cityName) async {
-    weatherController.clear();
+  final _weatherServices = WeatherServices('de1fb5334de6d614fdf68d14aa4e7d81');
+  int currentTimeStamp = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+  Weather? _weather;
+  var weatherController = TextEditingController();
+
+  weatherStatus() async {
     try {
-      final weather = await _weatherServices.weatherUpdate(cityName);
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+
+      List<Placemark> placemark =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      String? city = placemark[0].locality;
+
+      final weather =
+          await _weatherServices.weatherUpdate(city!, currentTimeStamp);
       setState(() {
         _weather = weather;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Invalid Location Input'),
+        content: Text('Invalid Location'),
       ));
     }
   }
@@ -35,12 +54,6 @@ class WeatherDisplayState extends State<WeatherDisplay> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Image.network(
-          'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.cover,
-        ),
         Container(
           child: Padding(
             padding: const EdgeInsets.all(15.0),
@@ -48,23 +61,6 @@ class WeatherDisplayState extends State<WeatherDisplay> {
               children: [
                 SizedBox(
                   height: 50,
-                ),
-                TextField(
-                  controller: weatherController,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    label: Text(
-                      'Enter Location',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: onPressed,
-                  child: Text(
-                    'Enter',
-                  ),
                 ),
               ],
             ),
@@ -84,7 +80,7 @@ class WeatherDisplayState extends State<WeatherDisplay> {
                     _weather?.location ?? "",
                     style: TextStyle(
                         fontSize: 40,
-                        color: Colors.white,
+                        color: const Color.fromARGB(255, 0, 0, 0),
                         fontWeight: FontWeight.bold),
                   ),
                   if (_weather?.temperature != null)
@@ -92,14 +88,14 @@ class WeatherDisplayState extends State<WeatherDisplay> {
                       '${_weather!.temperature.toString()} ° ',
                       style: TextStyle(
                           fontSize: 40,
-                          color: Colors.white,
+                          color: const Color.fromARGB(255, 0, 0, 0),
                           fontWeight: FontWeight.bold),
                     ),
                   Text(
                     _weather?.condition ?? "",
                     style: TextStyle(
                         fontSize: 40,
-                        color: Colors.white,
+                        color: const Color.fromARGB(255, 0, 0, 0),
                         fontWeight: FontWeight.bold),
                   ),
                 ],

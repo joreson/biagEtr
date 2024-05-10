@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:quickalert/quickalert.dart';
 
 class CropDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> cropDetails;
+  Map<String, dynamic> cropDetails;
 
   CropDetailScreen({required this.cropDetails});
 
@@ -21,6 +21,7 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
   var expAddAmount = TextEditingController();
   DateTime addDate = DateTime.now();
   late Future<void> dataFuture;
+
   late List<Map<String, dynamic>> items = [];
   double totalAmount = 0.0;
   bool isExpanded = false;
@@ -31,6 +32,7 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
     getTotalExp();
   }
 
+  String expId = " ";
   String expName = " ";
   String date = " ";
   String amount = " ";
@@ -45,12 +47,10 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
     });
   }
 
-  // Your getData function
   Future<void> getTotalExp() async {
     final _auth = FirebaseAuth.instance;
     String user_id = _auth.currentUser!.uid;
 
-    // Fetch expenses data from Firestore
     QuerySnapshot<Object?> expensesSnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(user_id)
@@ -59,7 +59,6 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
         .collection("expensesList")
         .get();
 
-    // Calculate total amount
     calculateTotalAmount(expensesSnapshot);
   }
 
@@ -69,11 +68,6 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
     User user = _auth.currentUser!;
     String _uid = user.uid;
 
-    print(_uid);
-
-    print('User email ${user.email}');
-
-    // Fetching documents from "crop" collection
     final cropDocs = await FirebaseFirestore.instance
         .collection('users')
         .doc(_uid)
@@ -82,19 +76,15 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
         .collection("expensesList")
         .get();
 
-    // Loop through each document and add its data to the tempList
     cropDocs.docs.forEach((doc) {
-      // Retrieve title and position data from Firestore document
       var data = doc.data();
       expName = data['expName'];
       date = data['date'].toString();
       amount = data['amount'].toString();
-
-      tempList.add({
-        'expName': expName,
-        'date': date,
-        'amount': amount,
-      });
+      expId = data['expId'].toString();
+      tempList.add(
+        {'expName': expName, 'date': date, 'amount': amount, 'expId': expId},
+      );
     });
 
     print('Inside getData: $tempList');
@@ -120,20 +110,192 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
       'date': DateFormat('MMM-d-yyyy').format(DateTime.now()).toString(),
     });
     String autoId = newRef.id;
-    await newRef.update({"cropId": autoId});
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.success,
-      title: 'Success',
-      text: 'Expenses added',
-    );
-    expAddAmount.clear();
-    expAddName.clear();
+    await newRef.update({"expId": autoId});
 
     await getData();
     await getTotalExp();
 
     setState(() {});
+  }
+
+  void editCrop() async {
+    try {
+      final _auth = FirebaseAuth.instance;
+      String user_id = _auth.currentUser!.uid;
+      var cropRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user_id)
+          .collection("crop")
+          .doc(widget.cropDetails['cropId']);
+
+      await cropRef.set({
+        "cropName": cropName.text,
+        "plant": plant.text,
+        "seedType": seedType.text,
+        "surveyNumber": surveyNumber.text,
+      }, SetOptions(merge: true));
+
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: 'Success',
+        text: 'Crop Updated',
+      );
+
+      // Fetch the updated data
+      var updatedData = await cropRef.get();
+      var updatedCropDetails = updatedData.data() as Map<String, dynamic>;
+
+      // Update the state with the updated data
+      setState(() {
+        widget.cropDetails = updatedCropDetails;
+      });
+
+      // Dismiss the dialog
+      Navigator.of(context).pop();
+    } on FirebaseAuthException catch (ex) {
+      print('Register error: $ex');
+
+      var errorTitle = '';
+      var errorText = '';
+
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: errorTitle,
+        text: errorText,
+      );
+    }
+  }
+
+  var cropName = TextEditingController();
+
+  var seedType = TextEditingController();
+  var plant = TextEditingController();
+  var surveyNumber = TextEditingController();
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  void handleClick(String value) {
+    if (value == 'Edit') {
+      cropName.text = widget.cropDetails['cropName'];
+      seedType.text = widget.cropDetails['seedType'];
+      surveyNumber.text = widget.cropDetails['surveyNumber'];
+      plant.text = widget.cropDetails['plant'];
+
+      showDialog(
+          context: context,
+          barrierDismissible: false, // User must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Edit crop'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: cropName,
+                      decoration: InputDecoration(labelText: 'Crop Name'),
+                    ),
+                    TextField(
+                      controller: seedType,
+                      decoration: InputDecoration(labelText: 'Seed Type'),
+                    ),
+                    TextField(
+                      controller: plant,
+                      decoration: InputDecoration(labelText: 'Plant'),
+                    ),
+                    TextField(
+                      controller: surveyNumber,
+                      decoration: InputDecoration(labelText: 'Survey Number'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    // Add your logic here for cancel button press
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Add your logic here for button press
+                    editCrop();
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Button'),
+                ),
+              ],
+            );
+          });
+    }
+    if (value == 'Finish Crop') {}
+    if (value == 'Delete') {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false, // User must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Delete Item?'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('Are you sure you want to delete this crop?'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // "No" button
+                },
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  String user_id = _auth.currentUser!.uid;
+                  _firestore
+                      .collection('users')
+                      .doc(user_id)
+                      .collection("crop")
+                      .doc('${widget.cropDetails['cropId']}')
+                      .delete();
+
+                  print('crop successfully deleted!');
+                  Navigator.pop(context);
+                },
+                child: Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> deleteExpense(String expenseId, int index) async {
+    try {
+      String user_id = _auth.currentUser!.uid;
+      await _firestore
+          .collection('users')
+          .doc(user_id)
+          .collection("crop")
+          .doc('${widget.cropDetails['cropId']}')
+          .collection("expensesList")
+          .doc(expenseId)
+          .delete();
+
+      // Remove the deleted item from the list
+      setState(() {
+        items.removeAt(index);
+      });
+      getTotalExp();
+      print('Expense successfully deleted!');
+    } catch (e) {
+      print('Error deleting expense: $e');
+    }
   }
 
   @override
@@ -148,6 +310,19 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: handleClick,
+              itemBuilder: (BuildContext context) {
+                return {'Edit', 'Delete', 'Finish crop'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
         ),
         body: Column(
           children: [
@@ -174,7 +349,7 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                               Column(
                                 children: [
                                   CircleAvatar(
-                                      radius: 50,
+                                      radius: 60,
                                       backgroundImage: AssetImage(
                                         "asset/image/rice.jpg",
                                       )),
@@ -219,13 +394,6 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                                   ),
                                 ],
                               ),
-                              Column(
-                                children: [
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.more_vert))
-                                ],
-                              )
                             ],
                           ),
                         ),
@@ -302,17 +470,33 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   var item = items[index];
-                  return Card(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: ListTile(
-                        title: Text(
-                          item['expName'],
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                  return Dismissible(
+                    key: Key(item['expId']),
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20.0),
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onDismissed: (direction) {
+                      deleteExpense(
+                          item['expId'], index); // Call deleteExpense function
+                    },
+                    child: Card(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: ListTile(
+                          title: Text(
+                            item['expName'],
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          subtitle: Text("Amount: ${item['amount']} "),
+                          trailing: Text("${item['date']} "),
                         ),
-                        subtitle: Text("Amount: ${item['amount']} "),
-                        trailing: Text("${item['date']} "),
                       ),
                     ),
                   );

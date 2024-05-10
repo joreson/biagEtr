@@ -28,6 +28,7 @@ class _registerState extends State<register> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Registration"),
+        backgroundColor: Color.fromRGBO(37, 103, 36, 1),
       ),
       body: Form(
         key: formKey,
@@ -37,14 +38,32 @@ class _registerState extends State<register> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                    'To register as Client, please enter the needed information.'),
+                const Text('To register, please enter the needed information.'),
                 SizedBox(
                   height: 10,
                 ),
                 TextFormField(
                   controller: fname,
-                  decoration: setTextDecoration('First Name'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(37, 103, 36, 1),
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    label: Text('First Name'),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required.';
@@ -56,7 +75,26 @@ class _registerState extends State<register> {
                 ),
                 TextFormField(
                   controller: lname,
-                  decoration: setTextDecoration('Last Name'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(37, 103, 36, 1),
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    label: Text('Last Name'),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required';
@@ -68,7 +106,26 @@ class _registerState extends State<register> {
                 ),
                 TextFormField(
                   controller: email,
-                  decoration: setTextDecoration('Email Address'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(37, 103, 36, 1),
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    label: Text('Email Address'),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required.';
@@ -84,7 +141,26 @@ class _registerState extends State<register> {
                 TextFormField(
                   controller: address,
                   maxLines: 3,
-                  decoration: setTextDecoration('Address'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(37, 103, 36, 1),
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    label: Text('Address'),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required';
@@ -113,7 +189,7 @@ class _registerState extends State<register> {
                 TextFormField(
                   obscureText: showPassword,
                   controller: confirmPassword,
-                  decoration: setTextDecoration('Confirm Password'),
+                  decoration: setTextDecoration('Password', isPassword: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required.';
@@ -132,6 +208,17 @@ class _registerState extends State<register> {
                 ElevatedButton(
                   onPressed: register,
                   child: const Text('Register'),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromRGBO(37, 103, 36, 1),
+                    ), // Change color here
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            10.0), // Adjust the value as needed
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -143,12 +230,29 @@ class _registerState extends State<register> {
 
   InputDecoration setTextDecoration(String name, {bool isPassword = false}) {
     return InputDecoration(
-      border: const OutlineInputBorder(),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(13),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color.fromRGBO(37, 103, 36, 1),
+          width: 2.0,
+        ),
+        borderRadius: BorderRadius.all(
+          Radius.circular(13),
+        ),
+      ),
+      labelStyle: TextStyle(
+        color: Colors.black,
+      ),
       label: Text(name),
       suffixIcon: isPassword
           ? IconButton(
               onPressed: toggleShowPassword,
               icon: Icon(
+                color: Color.fromRGBO(37, 103, 36, 1),
                 showPassword ? Icons.visibility : Icons.visibility_off,
               ),
             )

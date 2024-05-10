@@ -59,37 +59,97 @@ class _LoginState extends State<Login> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), label: Text("Email")),
-                controller: email,
-              ),
-              Gap(10),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), label: Text("Password")),
-                controller: password,
-              ),
-              ElevatedButton(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Image.asset("asset/image/logo.png"),
+                TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(37, 103, 36, 1),
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    label: Text('Email'),
+                  ),
+                  controller: email,
+                ),
+                Gap(10),
+                TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color.fromRGBO(37, 103, 36, 1),
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(13),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                    ),
+                    label: Text('Password'),
+                  ),
+                  controller: password,
+                ),
+                Gap(25),
+                TextButton(
                   onPressed: () {
                     login();
                   },
-                  child: Text("Log in")),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("First time here?"),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => register()));
-                      },
-                      child: Text("Sign up"))
-                ],
-              ),
-            ],
+                  child: Text(
+                    "Login",
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromRGBO(37, 103, 36, 1),
+                    ), // Change color here
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            10.0), // Adjust the value as needed
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("First time here?"),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => register()));
+                        },
+                        child: Text(
+                          "Sign up",
+                          style:
+                              TextStyle(color: Color.fromRGBO(37, 103, 36, 1)),
+                        ))
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
