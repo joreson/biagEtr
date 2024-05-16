@@ -23,6 +23,7 @@ class _CropsState extends State<Crops> {
   @override
   void initState() {
     super.initState();
+
     dataFuture = getData();
   }
 
@@ -35,6 +36,7 @@ class _CropsState extends State<Crops> {
   String cropId = " ";
   String endDate = " ";
   String revenue = " ";
+  String status = " ";
 
   Future<void> getData() async {
     List<Map<String, dynamic>> tempList = [];
@@ -66,6 +68,7 @@ class _CropsState extends State<Crops> {
       cropId = data['cropId'];
       endDate = data['endDate'];
       revenue = data['revenue'].toString();
+      status = data['status'];
 
       tempList.add({
         'cropName': cropName,
@@ -75,7 +78,8 @@ class _CropsState extends State<Crops> {
         'surveyNumber': surveyNumber,
         'plant': plant,
         'cropId': cropId,
-        'revenue': revenue
+        'revenue': revenue,
+        'status': status
       });
     });
 
@@ -97,15 +101,18 @@ class _CropsState extends State<Crops> {
             itemBuilder: (context, index) {
               var item = items[index];
               return InkWell(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CropDetailScreen(cropDetails: item),
                     ),
                   );
+                  await getData();
                 },
                 child: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.0)),
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: ListTile(
@@ -127,6 +134,16 @@ class _CropsState extends State<Crops> {
                           Text("Survey Number: ${item['surveyNumber']}"),
                         ],
                       ),
+                      trailing: Text(
+                        item['status'] == 'Ongoing'
+                            ? item['status']
+                            : 'Finished',
+                        style: TextStyle(
+                          color: item['status'] == 'Ongoing'
+                              ? Colors.amber
+                              : Colors.green,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -138,6 +155,7 @@ class _CropsState extends State<Crops> {
           padding: const EdgeInsets.all(8.0),
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             FloatingActionButton(
+              backgroundColor: Color.fromRGBO(37, 103, 36, 1),
               onPressed: () async {
                 // Navigate to the cropAdd screen
                 await Navigator.push(

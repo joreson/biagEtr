@@ -63,7 +63,11 @@ class _LoginState extends State<Login> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Image.asset("asset/image/logo.png"),
+                Image.asset(
+                  "asset/image/logo.png",
+                  width: 250,
+                  height: 250,
+                ),
                 TextField(
                   decoration: InputDecoration(
                     border: OutlineInputBorder(

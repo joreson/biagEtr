@@ -40,7 +40,8 @@ class _cropAddState extends State<cropAdd> {
         'surveyNumber': surveyNumberController.text,
         'revenue': 0,
         'expenses': 0,
-        'endDate': " "
+        'endDate': " ",
+        'status': "Ongoing"
       });
       String autoId = newRef.id;
       await newRef.update({"cropId": autoId});
@@ -49,12 +50,17 @@ class _cropAddState extends State<cropAdd> {
         type: QuickAlertType.success,
         title: 'Success',
         text: 'Crop added',
+        onConfirmBtnTap: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
       );
       cropNameController.clear();
       seedTypeController.clear();
       plantController.clear();
       surveyNumberController.clear();
       startDate = '';
+
       setState(() {});
     } on FirebaseAuthException catch (ex) {
       print('Register error: $ex');
@@ -106,8 +112,8 @@ class _cropAddState extends State<cropAdd> {
                 children: [
                   Column(
                     children: [
-                      IconButton(
-                        onPressed: () {
+                      InkWell(
+                        onTap: () {
                           setState(() {
                             plantController.text = 'Rice';
                             cropNum3BorderColor =
@@ -116,27 +122,36 @@ class _cropAddState extends State<cropAdd> {
                                 Color.fromARGB(255, 26, 245, 44);
                           });
                         },
-                        style: ElevatedButton.styleFrom(
-                          side:
-                              BorderSide(color: cropNum2BorderColor, width: 5),
-                        ),
-                        icon: CircleAvatar(
-                            radius: 40,
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: cropNum2BorderColor,
+                              width: 3,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 35,
                             backgroundImage: AssetImage(
                               "asset/image/rice.jpg",
-                            )),
+                            ),
+                          ),
+                        ),
                       ),
                       Text(
                         "Rice",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
                       )
                     ],
                   ),
                   Column(
                     children: [
-                      IconButton(
-                        onPressed: () {
+                      InkWell(
+                        onTap: () {
                           setState(() {
                             plantController.text = 'Corn';
                             cropNum2BorderColor =
@@ -145,20 +160,29 @@ class _cropAddState extends State<cropAdd> {
                                 Color.fromARGB(255, 26, 245, 44);
                           });
                         },
-                        style: ElevatedButton.styleFrom(
-                          side:
-                              BorderSide(color: cropNum3BorderColor, width: 5),
-                        ),
-                        icon: CircleAvatar(
-                            radius: 40,
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: cropNum3BorderColor,
+                              width: 3,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 35,
                             backgroundImage: AssetImage(
                               "asset/image/corn.jpg",
-                            )),
+                            ),
+                          ),
+                        ),
                       ),
                       Text(
-                        "Corn",
+                        "Rice",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
                       )
                     ],
                   ),

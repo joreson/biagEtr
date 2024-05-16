@@ -47,7 +47,9 @@ class inventory extends StatelessWidget {
                           ),
                         ),
                       ),
-                      child: Image.asset("asset/image/seeds.png"),
+                      child: Image.asset(
+                        "asset/image/seeds.png",
+                      ),
                     ),
                   ),
                 ),
@@ -126,7 +128,7 @@ class inventory extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
                           child: Text(
-                            'Other Materials',
+                            'Other',
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,

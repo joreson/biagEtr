@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
@@ -168,13 +169,63 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
     }
   }
 
-  var cropName = TextEditingController();
+  var revenue = TextEditingController();
+  void finishCrop() async {
+    try {
+      final _auth = FirebaseAuth.instance;
+      String user_id = _auth.currentUser!.uid;
+      var cropRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user_id)
+          .collection("crop")
+          .doc(widget.cropDetails['cropId']);
 
+      await cropRef.set({
+        "status": "Finished",
+        "revenue": int.tryParse(revenue.text),
+        "endDate": DateFormat('MMM-d-yyyy').format(DateTime.now()).toString(),
+      }, SetOptions(merge: true));
+
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: 'Success',
+        text: 'Crop Updated',
+      );
+
+      // Fetch the updated data
+      var updatedData = await cropRef.get();
+      var updatedCropDetails = updatedData.data() as Map<String, dynamic>;
+
+      // Update the state with the updated data
+      setState(() {
+        widget.cropDetails = updatedCropDetails;
+      });
+
+      // Dismiss the dialog
+      Navigator.of(context).pop();
+    } on FirebaseAuthException catch (ex) {
+      print('Register error: $ex');
+
+      var errorTitle = '';
+      var errorText = '';
+
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: errorTitle,
+        text: errorText,
+      );
+    }
+  }
+
+  var cropName = TextEditingController();
   var seedType = TextEditingController();
   var plant = TextEditingController();
   var surveyNumber = TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   void handleClick(String value) {
     if (value == 'Edit') {
       cropName.text = widget.cropDetails['cropName'];
@@ -231,7 +282,45 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
             );
           });
     }
-    if (value == 'Finish Crop') {}
+    if (value == 'Finish crop') {
+      print("finish");
+      showDialog(
+          context: context,
+          barrierDismissible: false, // User must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Finish crop?'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: revenue,
+                      decoration: InputDecoration(labelText: 'Revenue'),
+                    )
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    // Add your logic here for cancel button press
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Add your logic here for button press
+                    finishCrop();
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Button'),
+                ),
+              ],
+            );
+          });
+    }
     if (value == 'Delete') {
       showDialog<void>(
         context: context,
@@ -261,10 +350,16 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                       .doc(user_id)
                       .collection("crop")
                       .doc('${widget.cropDetails['cropId']}')
-                      .delete();
-
-                  print('crop successfully deleted!');
-                  Navigator.pop(context);
+                      .delete()
+                      .then((_) {
+                    print('Crop successfully deleted!');
+                    Navigator.pop(context);
+                    // Call a method to refresh the screen
+                    // For example, if you are using a StatefulWidget, you can call setState
+                    Navigator.pop(context);
+                  }).catchError((error) {
+                    print('Failed to delete crop: $error');
+                  });
                 },
                 child: Text('Yes'),
               ),
@@ -304,7 +399,7 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
         backgroundColor: const Color.fromARGB(255, 228, 228, 228),
         appBar: AppBar(
           iconTheme: IconThemeData(color: Colors.white),
-          backgroundColor: Color.fromARGB(255, 17, 197, 143),
+          backgroundColor: Color.fromRGBO(37, 103, 36, 1),
           title: Text(
             'Crop Details',
             style: TextStyle(color: Colors.white),
@@ -334,6 +429,7 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                     borderRadius: BorderRadius.all(Radius.circular(15.0))),
                 child: Column(
                   children: [
+                    Gap(10),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
                       child: Container(
@@ -341,7 +437,7 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                           borderRadius: BorderRadius.circular(9),
                           color: Color.fromARGB(255, 255, 255, 255),
                         ),
-                        height: 150,
+                        height: 160,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
@@ -349,48 +445,103 @@ class _CropDetailScreenState extends State<CropDetailScreen> {
                               Column(
                                 children: [
                                   CircleAvatar(
-                                      radius: 60,
+                                      radius: 50,
                                       backgroundImage: AssetImage(
                                         "asset/image/rice.jpg",
                                       )),
                                 ],
                               ),
-                              Gap(20),
+                              Gap(50),
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Text(
+                                            ' ${widget.cropDetails['cropName']}',
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          Gap(5),
+                                          Text(
+                                            ' Name',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          Gap(20),
+                                          Text(
+                                            '${widget.cropDetails['surveyNumber']}',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Survey no.',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ],
+                                      ),
+                                      Gap(70),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            ' ${widget.cropDetails['plant']}',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Gap(5),
+                                          Text(
+                                            'Plant',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                          Gap(20),
+                                          Text(
+                                            '${widget.cropDetails['seedType']}',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Seed type',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Gap(10),
                                   Text(
-                                    ' ${widget.cropDetails['cropName']}',
-                                    style: TextStyle(fontSize: 20),
+                                    '${widget.cropDetails['startDate']}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                   Text(
-                                    ' ${widget.cropDetails['plant']}',
+                                    'Start Date',
                                     style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: const Color.fromARGB(
-                                            255, 114, 114, 114)),
-                                  ),
-                                  Text(
-                                    'Seed Type: ${widget.cropDetails['seedType']}',
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: const Color.fromARGB(
-                                            255, 114, 114, 114)),
-                                  ),
-                                  Text(
-                                    'Planted on: ${widget.cropDetails['startDate']}',
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: const Color.fromARGB(
-                                            255, 114, 114, 114)),
-                                  ),
-                                  Text(
-                                    'Survey Number: ${widget.cropDetails['surveyNumber']}',
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: const Color.fromARGB(
-                                            255, 114, 114, 114)),
+                                        color: Colors.grey,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w400),
                                   ),
                                 ],
                               ),
